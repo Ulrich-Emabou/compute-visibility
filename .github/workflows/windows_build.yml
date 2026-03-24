@@ -1,0 +1,25 @@
+name: Build Windows EXE
+on: [push]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup vcpkg
+        run: |
+          vcpkg install embree3 armadillo octomap hdf5 tbb --triplet x64-windows
+          
+      - name: Compile with CMake
+        run: |
+          mkdir build
+          cd build
+          cmake .. -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
+          cmake --build . --config Release
+
+      - name: Upload EXE
+        uses: actions/upload-artifact@v4
+        with:
+          name: visibility-tool
+          path: build/Release/*.exe
