@@ -7,19 +7,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup vcpkg
+      - name: Install Dependencies
         run: |
           vcpkg install embree3 armadillo octomap hdf5 tbb --triplet x64-windows
           
-      - name: Compile with CMake
+      - name: Compile Manual
         run: |
-          mkdir build
-          cd build
-          cmake .. -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
-          cmake --build . --config Release
-
+          # On compile directement le fichier .cc avec les bons liens
+          g++ compute_visibility.cc `
+          -o compute_visibility.exe `
+          -std=c++14 `
+          -I"C:/vcpkg/installed/x64-windows/include" `
+          -L"C:/vcpkg/installed/x64-windows/lib" `
+          -larmadillo -lembree3 -loctomap -loctomath -lhdf5 -ltbb
+          
       - name: Upload EXE
         uses: actions/upload-artifact@v4
         with:
-          name: visibility-tool
-          path: build/Release/*.exe
+          name: mon-exécutable-windows
+          path: ./*.exe
